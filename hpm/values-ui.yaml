@@ -52,7 +52,7 @@ ingress:
           pathType: Prefix
           serviceName: hospital-appointment-hpm
           servicePort: 3001
-    - host: frontend.3utilities.com
+    - host: frontend.192.168.49.2.nip.io
       paths:
         - path: /
           pathType: Prefix

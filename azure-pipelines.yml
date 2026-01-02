@@ -216,20 +216,10 @@ stages:
             --atomic --wait
  
           # Verify deployments
-          echo "================ FRONTEND SERVICE (DEV) ================"
-          kubectl get svc hospital-ui -n $(NAMESPACE_DEV)
-          echo "Frontend Public IP (DEV):"
-          kubectl get svc hospital-ui -n $(NAMESPACE_DEV) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
-          
-          echo "================ PATIENT API SERVICE (DEV) ================"
-          kubectl get svc patient-api -n $(NAMESPACE_DEV)
-          echo "Patient API Public IP (DEV):"
-          kubectl get svc patient-api -n $(NAMESPACE_DEV) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
-
-          echo "================ APPOINTMENT API SERVICE (DEV) ================"
-          kubectl get svc appointment-api -n $(NAMESPACE_DEV)
-          echo "Appointment API Public IP (DEV):"
-          kubectl get svc appointment-api -n $(NAMESPACE_DEV) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
+          echo "================ INGRESS (DEV) ================"
+          kubectl get ingress hospital-ui-hpm -n $(NAMESPACE_DEV)
+          echo "Ingress External IP (DEV):"
+          kubectl get ingress hospital-ui-hpm -n $(NAMESPACE_DEV) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
 
           echo ""
           echo "========================================================"
@@ -289,20 +279,10 @@ stages:
             --atomic --wait
  
           # Verify deployments
-          echo "================ FRONTEND SERVICE (PROD) ================"
-          kubectl get svc hospital-ui -n $(NAMESPACE_PROD)
-          echo "Frontend Public IP (PROD):"
-          kubectl get svc hospital-ui -n $(NAMESPACE_PROD) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
-          
-          echo "================ PATIENT API SERVICE (PROD) ================"
-          kubectl get svc patient-api -n $(NAMESPACE_PROD)
-          echo "Patient API Public IP (PROD):"
-          kubectl get svc patient-api -n $(NAMESPACE_PROD) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
-
-          echo "================ APPOINTMENT API SERVICE (PROD) ================"
-          kubectl get svc appointment-api -n $(NAMESPACE_PROD)
-          echo "Appointment API Public IP (PROD):"
-          kubectl get svc appointment-api -n $(NAMESPACE_PROD) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
+          echo "================ INGRESS (PROD) ================"
+          kubectl get ingress hospital-ui-hpm -n $(NAMESPACE_PROD)
+          echo "Ingress External IP (PROD):"
+          kubectl get ingress hospital-ui-hpm -n $(NAMESPACE_PROD) -o jsonpath="{.status.loadBalancer.ingress[0].ip}"
 
           echo ""
           echo "========================================================"
