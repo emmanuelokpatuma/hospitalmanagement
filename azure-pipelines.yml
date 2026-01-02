@@ -177,45 +177,13 @@ stages:
       displayName: AKS Dev Deployment
       inputs:
         script: |
-          az login --service-principal ^
-            -u $(AZURE_CLIENT_ID) ^
-            -p $(AZURE_CLIENT_SECRET) ^
-            --tenant $(AZURE_TENANT_ID)
- 
+          az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
           az account set --subscription $(AZURE_SUBSCRIPTION_ID)
- 
-          az aks get-credentials ^
-            --resource-group $(AKS_RESOURCE_GROUP) ^
-            --name $(AKS_CLUSTER_NAME) ^
-            --overwrite-existing
- 
+          az aks get-credentials --resource-group $(AKS_RESOURCE_GROUP) --name $(AKS_CLUSTER_NAME) --overwrite-existing
           helm dependency update .\hpm
- 
-          # Deploy hospital-ui
-          helm upgrade --install hospital-ui ./hpm ^
-            --namespace $(NAMESPACE_DEV) ^
-            --create-namespace ^
-            --set image.repository=omagu/hospital-ui ^
-            --set image.tag=$(IMAGE_TAG) ^
-            --atomic --wait
- 
-          # Deploy patient-api
-          helm upgrade --install patient-api ./hpm ^
-            --namespace $(NAMESPACE_DEV) ^
-            --create-namespace ^
-            --set image.repository=omagu/patient-api ^
-            --set image.tag=$(IMAGE_TAG) ^
-            --atomic --wait
- 
-          # Deploy appointment-api
-          helm upgrade --install appointment-api ./hpm ^
-            --namespace $(NAMESPACE_DEV) ^
-            --create-namespace ^
-            --set image.repository=omagu/appointment-api ^
-            --set image.tag=$(IMAGE_TAG) ^
-            --atomic --wait
- 
-          # Verify deployments
+          helm upgrade --install hospital-ui ./hpm --namespace $(NAMESPACE_DEV) --create-namespace --set image.repository=omagu/hospital-ui --set image.tag=$(IMAGE_TAG) --atomic --wait
+          helm upgrade --install patient-api ./hpm --namespace $(NAMESPACE_DEV) --create-namespace --set image.repository=omagu/patient-api --set image.tag=$(IMAGE_TAG) --atomic --wait
+          helm upgrade --install appointment-api ./hpm --namespace $(NAMESPACE_DEV) --create-namespace --set image.repository=omagu/appointment-api --set image.tag=$(IMAGE_TAG) --atomic --wait
           echo "================ INGRESS (DEV) ================"
           kubectl get ingress hospital-ui-hpm -n $(NAMESPACE_DEV)
           echo "Ingress External IP (DEV):"
@@ -240,45 +208,13 @@ stages:
       displayName: AKS Prod Deployment
       inputs:
         script: |
-          az login --service-principal ^
-            -u $(AZURE_CLIENT_ID) ^
-            -p $(AZURE_CLIENT_SECRET) ^
-            --tenant $(AZURE_TENANT_ID)
- 
+          az login --service-principal -u $(AZURE_CLIENT_ID) -p $(AZURE_CLIENT_SECRET) --tenant $(AZURE_TENANT_ID)
           az account set --subscription $(AZURE_SUBSCRIPTION_ID)
- 
-          az aks get-credentials ^
-            --resource-group $(AKS_RESOURCE_GROUP) ^
-            --name $(AKS_CLUSTER_NAME) ^
-            --overwrite-existing
- 
+          az aks get-credentials --resource-group $(AKS_RESOURCE_GROUP) --name $(AKS_CLUSTER_NAME) --overwrite-existing
           helm dependency update .\hpm
- 
-          # Deploy hospital-ui
-          helm upgrade --install hospital-ui ./hpm ^
-            --namespace $(NAMESPACE_PROD) ^
-            --create-namespace ^
-            --set image.repository=omagu/hospital-ui ^
-            --set image.tag=$(IMAGE_TAG) ^
-            --atomic --wait
- 
-          # Deploy patient-api
-          helm upgrade --install patient-api ./hpm ^
-            --namespace $(NAMESPACE_PROD) ^
-            --create-namespace ^
-            --set image.repository=omagu/patient-api ^
-            --set image.tag=$(IMAGE_TAG) ^
-            --atomic --wait
- 
-          # Deploy appointment-api
-          helm upgrade --install appointment-api ./hpm ^
-            --namespace $(NAMESPACE_PROD) ^
-            --create-namespace ^
-            --set image.repository=omagu/appointment-api ^
-            --set image.tag=$(IMAGE_TAG) ^
-            --atomic --wait
- 
-          # Verify deployments
+          helm upgrade --install hospital-ui ./hpm --namespace $(NAMESPACE_PROD) --create-namespace --set image.repository=omagu/hospital-ui --set image.tag=$(IMAGE_TAG) --atomic --wait
+          helm upgrade --install patient-api ./hpm --namespace $(NAMESPACE_PROD) --create-namespace --set image.repository=omagu/patient-api --set image.tag=$(IMAGE_TAG) --atomic --wait
+          helm upgrade --install appointment-api ./hpm --namespace $(NAMESPACE_PROD) --create-namespace --set image.repository=omagu/appointment-api --set image.tag=$(IMAGE_TAG) --atomic --wait
           echo "================ INGRESS (PROD) ================"
           kubectl get ingress hospital-ui-hpm -n $(NAMESPACE_PROD)
           echo "Ingress External IP (PROD):"
