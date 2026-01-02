@@ -11,6 +11,9 @@ service:
   type: ClusterIP
   port: 80
 
+sqlserver:
+  enabled: true
+
 # ServiceAccount configuration
 serviceAccount:
   create: true

@@ -5,17 +5,16 @@ networks:
     driver: bridge
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_hospital
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: pass123
-      MYSQL_DATABASE: hospital
-      MYSQL_USER: user
-      MYSQL_PASSWORD: pass123
+      ACCEPT_EULA: Y
+      SA_PASSWORD: YourStrong!Passw0rd
+      MSSQL_PID: Express
     ports:
-      - "3306:3306"
+      - "1433:1433"
     networks:
       - hpm
 
@@ -26,7 +25,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mysql
+      - sqlserver
     networks:
       - hpm
 
@@ -37,7 +36,7 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - mysql
+      - sqlserver
     networks:
       - hpm
 

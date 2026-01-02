@@ -1,29 +1,31 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import MySQLdb
-import MySQLdb.cursors
+import pyodbc
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# MySQL configuration
+# SQL Server configuration
 DB_CONFIG = {
-    'host': 'mysql_hospital',   # Docker network alias
-    'user': 'user',
-    'passwd': 'pass123',
-    'db': 'hospital',
-    'cursorclass': MySQLdb.cursors.DictCursor
+    'server': os.environ.get('DB_SERVER', 'sqlserver'),
+    'database': 'hospital',
+    'username': 'sa',
+    'password': 'YourStrong!Passw0rd',
+    'driver': '{ODBC Driver 17 for SQL Server}'
 }
 
 def get_db_connection():
-    return MySQLdb.connect(**DB_CONFIG)
+    conn_str = f"DRIVER={DB_CONFIG['driver']};SERVER={DB_CONFIG['server']};DATABASE={DB_CONFIG['database']};UID={DB_CONFIG['username']};PWD={DB_CONFIG['password']}"
+    return pyodbc.connect(conn_str)
 
 # Create appointments table
 with get_db_connection() as conn:
     cursor = conn.cursor()
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS appointments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='appointments' AND xtype='U')
+        CREATE TABLE appointments (
+            id INT IDENTITY(1,1) PRIMARY KEY,
             patient_id INT,
             doctor VARCHAR(255),
             date DATE,
@@ -42,13 +44,15 @@ def get_appointments():
                 id,
                 patient_id,
                 doctor,
-                DATE_FORMAT(date, '%Y-%m-%d') AS date,
-                TIME_FORMAT(time, '%H:%i') AS time
+                CONVERT(VARCHAR(10), date, 120) AS date,
+                CONVERT(VARCHAR(5), time, 108) AS time
             FROM appointments
         """)
         appointments = cursor.fetchall()
+        # Convert to dict
+        result = [{'id': row[0], 'patient_id': row[1], 'doctor': row[2], 'date': row[3], 'time': row[4]} for row in appointments]
 
-    return jsonify(appointments)
+    return jsonify(result)
 
 # Add appointment
 @app.route('/appointments', methods=['POST'])
@@ -62,11 +66,12 @@ def add_appointment():
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO appointments (patient_id, doctor, date, time) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO appointments (patient_id, doctor, date, time) VALUES (?, ?, ?, ?)",
             (patient_id, doctor, date, time)
         )
         conn.commit()
-        appointment_id = cursor.lastrowid
+        cursor.execute("SELECT @@IDENTITY")
+        appointment_id = cursor.fetchone()[0]
 
     return jsonify({
         'id': appointment_id,

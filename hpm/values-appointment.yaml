@@ -7,6 +7,9 @@ service:
   port: 3001
   type: ClusterIP
 
+env:
+  DB_SERVER: hospital-ui-hpm-sqlserver
+
 ingress:
   enabled: false
   hosts:

@@ -1,30 +1,32 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import MySQLdb
-import MySQLdb.cursors
+import pyodbc
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-# MySQL configuration
+# SQL Server configuration
 DB_CONFIG = {
-    'host': 'mysql_hospital',  # Docker container name / network alias
-    'user': 'user',
-    'passwd': 'pass123',
-    'db': 'hospital',
-    'cursorclass': MySQLdb.cursors.DictCursor
+    'server': os.environ.get('DB_SERVER', 'sqlserver'),
+    'database': 'hospital',
+    'username': 'sa',
+    'password': 'YourStrong!Passw0rd',
+    'driver': '{ODBC Driver 17 for SQL Server}'
 }
 
 # Helper function to get DB connection
 def get_db_connection():
-    return MySQLdb.connect(**DB_CONFIG)
+    conn_str = f"DRIVER={DB_CONFIG['driver']};SERVER={DB_CONFIG['server']};DATABASE={DB_CONFIG['database']};UID={DB_CONFIG['username']};PWD={DB_CONFIG['password']}"
+    return pyodbc.connect(conn_str)
 
 # Create patients table if not exists
 with get_db_connection() as conn:
     cursor = conn.cursor()
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS patients (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='patients' AND xtype='U')
+        CREATE TABLE patients (
+            id INT IDENTITY(1,1) PRIMARY KEY,
             name VARCHAR(255),
             age INT
         )
@@ -38,7 +40,9 @@ def get_patients():
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM patients")
         patients = cursor.fetchall()
-    return jsonify(patients)
+        # Convert to dict
+        result = [{'id': row[0], 'name': row[1], 'age': row[2]} for row in patients]
+    return jsonify(result)
 
 # Add a patient
 @app.route('/patients', methods=['POST'])
@@ -48,9 +52,10 @@ def add_patient():
     age = data.get('age')
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO patients (name, age) VALUES (%s, %s)", (name, age))
+        cursor.execute("INSERT INTO patients (name, age) VALUES (?, ?)", (name, age))
         conn.commit()
-        patient_id = cursor.lastrowid
+        cursor.execute("SELECT @@IDENTITY")
+        patient_id = cursor.fetchone()[0]
     return jsonify({'id': patient_id, 'name': name, 'age': age})
 
 if __name__ == '__main__':
