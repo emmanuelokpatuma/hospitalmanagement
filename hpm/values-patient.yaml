@@ -13,6 +13,8 @@ env:
 sqlserver:
   enabled: false
 
+replicaCount: 1
+
 ingress:
   enabled: false
   hosts:
