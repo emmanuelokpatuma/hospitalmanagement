@@ -1,6 +1,6 @@
 image:
-  repository: omagu/appointment-api
-  tag: latest
+  repository: gcr.io/charged-thought-485008-q7/appointment-api
+  tag: v3
   pullPolicy: IfNotPresent
 
 service:
@@ -8,7 +8,8 @@ service:
   type: ClusterIP
 
 env:
-  DB_SERVER: hospital-ui-hpm-sqlserver
+  - name: DB_SERVER
+    value: hospital-ui-hpm-sqlserver
 
 sqlserver:
   enabled: false
@@ -32,3 +33,34 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 1
   targetCPUUtilizationPercentage: 80
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 3001
+  initialDelaySeconds: 30
+  periodSeconds: 10
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 3001
+  initialDelaySeconds: 10
+  periodSeconds: 5
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "3001"
+  prometheus.io/path: "/metrics"
+
+metrics:
+  enabled: false
+  path: /metrics

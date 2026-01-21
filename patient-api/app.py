@@ -12,12 +12,12 @@ DB_CONFIG = {
     'database': 'hospital',
     'username': 'sa',
     'password': 'YourStrong!Passw0rd',
-    'driver': '{ODBC Driver 17 for SQL Server}'
+    'driver': '{ODBC Driver 18 for SQL Server}'
 }
 
 # Helper function to get DB connection
 def get_db_connection():
-    conn_str = f"DRIVER={DB_CONFIG['driver']};SERVER={DB_CONFIG['server']};DATABASE={DB_CONFIG['database']};UID={DB_CONFIG['username']};PWD={DB_CONFIG['password']}"
+    conn_str = f"DRIVER={DB_CONFIG['driver']};SERVER={DB_CONFIG['server']};DATABASE={DB_CONFIG['database']};UID={DB_CONFIG['username']};PWD={DB_CONFIG['password']};TrustServerCertificate=yes;"
     return pyodbc.connect(conn_str)
 
 # Create patients table if not exists
@@ -43,6 +43,11 @@ def get_patients():
         # Convert to dict
         result = [{'id': row[0], 'name': row[1], 'age': row[2]} for row in patients]
     return jsonify(result)
+
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'healthy'}), 200
 
 # Add a patient
 @app.route('/patients', methods=['POST'])

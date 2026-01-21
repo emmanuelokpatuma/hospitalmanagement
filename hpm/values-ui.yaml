@@ -2,8 +2,11 @@
 
 replicaCount: 1
 
+metrics:
+  enabled: false
+
 image:
-  repository: omagu/hospital-ui
+  repository: gcr.io/charged-thought-485008-q7/hospital-frontend
   tag: latest
   pullPolicy: IfNotPresent
 
@@ -36,40 +39,23 @@ ingress:
   enabled: true
   ingressClassName: nginx
   annotations:
-    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
   hosts:
-    - host: hospital.local
+    - host: hospital.34.173.19.139.nip.io
       paths:
-        - path: /
-          pathType: Prefix
+        - path: /()(.*)
+          pathType: ImplementationSpecific
           serviceName: hospital-ui-hpm
           servicePort: 80
-        - path: /patient
-          pathType: Prefix
+        - path: /api/patients(/|$)(.*)
+          pathType: ImplementationSpecific
           serviceName: hospital-patient-hpm
           servicePort: 3000
-        - path: /appointment
-          pathType: Prefix
+        - path: /api/appointments(/|$)(.*)
+          pathType: ImplementationSpecific
           serviceName: hospital-appointment-hpm
           servicePort: 3001
-    - host: frontend.192.168.49.2.nip.io
-      paths:
-        - path: /
-          pathType: Prefix
-          serviceName: hospital-ui-hpm
-          servicePort: 80
-    - host: api.192.168.49.2.nip.io
-      paths:
-        - path: /
-          pathType: Prefix
-          serviceName: hospital-appointment-hpm
-          servicePort: 3001
-    - host: patient.192.168.49.2.nip.io
-      paths:
-        - path: /
-          pathType: Prefix
-          serviceName: hospital-patient-hpm
-          servicePort: 3000
   tls: []
 
 # Node selector, tolerations, and affinity (optional)

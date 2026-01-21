@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-hospital-config
+  namespace: monitoring
+data:
+  prometheus-additional.yaml: |
+    - job_name: 'patient-api'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - default
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: patient-api
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        regex: true
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__
+    
+    - job_name: 'appointment-api'
+      kubernetes_sd_configs:
+      - role: pod
+        namespaces:
+          names:
+          - default
+      relabel_configs:
+      - source_labels: [__meta_kubernetes_pod_label_app]
+        regex: appointment-api
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+        regex: true
+        action: keep
+      - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+        target_label: __metrics_path__
+        regex: (.+)
+      - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+        regex: ([^:]+)(?::\d+)?;(\d+)
+        replacement: $1:$2
+        target_label: __address__

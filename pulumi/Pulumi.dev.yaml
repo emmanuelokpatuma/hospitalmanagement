@@ -1,0 +1,9 @@
+config:
+  gcp:project: charged-thought-485008-q7
+  gcp:region: us-central1
+  gcp:zone: us-central1-a
+  hospital-management-gcp:cluster-name: hospital-gke
+  hospital-management-gcp:node-count: 3
+  hospital-management-gcp:machine-type: e2-standard-2
+  hospital-management-gcp:enable-monitoring: "true"
+  hospital-management-gcp:enable-logging: "true"

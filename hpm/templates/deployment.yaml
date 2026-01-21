@@ -13,10 +13,13 @@ spec:
     metadata:
       labels:
         {{- include "hpm.labels" . | nindent 8 }}
-      {{- with .Values.podAnnotations }}
       annotations:
+        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        co.elastic.logs/enabled: "true"
+        co.elastic.logs/json.keys_under_root: "true"
+        co.elastic.logs/json.add_error_key: "true"
     spec:
       serviceAccountName: {{ if .Values.serviceAccount.name }}{{ .Values.serviceAccount.name }}{{ else }}{{ include "hpm.serviceAccountName" . }}{{ end }}
       securityContext:

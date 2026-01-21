@@ -1,0 +1,3 @@
+name: hospital-management-gcp
+runtime: python
+description: Hospital Management System on GCP with GKE, monitoring, and logging

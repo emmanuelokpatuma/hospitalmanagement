@@ -1,0 +1,40 @@
+daemonset:
+  enabled: true
+  
+  filebeatConfig:
+    filebeat.yml: |
+      filebeat.inputs:
+      - type: container
+        paths:
+          - /var/log/containers/*.log
+        processors:
+        - add_kubernetes_metadata:
+            host: ${NODE_NAME}
+            matchers:
+            - logs_path:
+                logs_path: "/var/log/containers/"
+        - decode_json_fields:
+            fields: ["message"]
+            target: ""
+            overwrite_keys: true
+      
+      output.elasticsearch:
+        hosts: ["https://elasticsearch-master:9200"]
+        username: "elastic"
+        password: "keB6DS2kLpFaoNB7"
+        index: "filebeat-%{+yyyy.MM.dd}"
+        ssl.verification_mode: none
+      
+      setup.ilm.enabled: false
+      setup.template.name: "filebeat"
+      setup.template.pattern: "filebeat-*"
+      
+      logging.level: info
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100Mi
+    limits:
+      cpu: 200m
+      memory: 200Mi

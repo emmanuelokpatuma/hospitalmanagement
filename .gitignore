@@ -1,0 +1,8 @@
+
+# Pulumi & Credentials
+pulumi/gke_gcloud_auth_plugin_cache
+pulumi/kubeconfig.yaml
+pulumi/__pycache__/
+pulumi/.pulumi/
+*.pyc
+__pycache__/

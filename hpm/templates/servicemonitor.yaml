@@ -1,0 +1,16 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "hpm.fullname" . }}
+  labels:
+    {{- include "hpm.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "hpm.selectorLabels" . | nindent 6 }}
+  endpoints:
+  - port: http
+    interval: 30s
+    path: {{ .Values.metrics.path | default "/metrics" }}
+{{- end }}
