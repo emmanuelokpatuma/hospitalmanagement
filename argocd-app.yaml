@@ -1,7 +1,9 @@
+---
+# Patient API
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: hospital-management
+  name: hospital-patient-api
   namespace: argocd
 spec:
   project: default
@@ -10,6 +12,59 @@ spec:
     targetRevision: main
     path: hpm
     helm:
+      releaseName: hospital-patient
+      valueFiles:
+      - values-patient.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hospital
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+# Appointment API
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hospital-appointment-api
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/emmanuelokpatuma/hospitalmanagement
+    targetRevision: main
+    path: hpm
+    helm:
+      releaseName: hospital-appointment
+      valueFiles:
+      - values-appointment.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hospital
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+---
+# Frontend UI
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hospital-frontend
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/emmanuelokpatuma/hospitalmanagement
+    targetRevision: main
+    path: hpm
+    helm:
+      releaseName: hospital-ui
       valueFiles:
       - values-ui.yaml
   destination:
